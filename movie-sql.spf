@@ -153,7 +153,24 @@ VALUES
 
 UPDATE movies
 SET `MPAA_rating` = 'PG'
-WHERE movies.title = '%Jumanji%';
+WHERE movies.title LIKE '%Jumanji%';
+
+UPDATE movies
+SET `MPAA_rating` = 'G'
+WHERE movies.title LIKE '%toy story%';
+
+UPDATE movies
+SET `MPAA_rating` = 'PG'
+WHERE movies.title LIKE '%Ace Ventura%';
+
+UPDATE movies
+SET `MPAA_rating` = 'PG'
+WHERE movies.title LIKE '%lion king%';
+
+UPDATE movies
+SET `MPAA_rating` = 'PG'
+WHERE movies.title LIKE '%free willy%';
+
 
 -- With Joins
 	-- Find all the ratings for the movie Godfather, show just the title and the rating
@@ -161,22 +178,97 @@ WHERE movies.title = '%Jumanji%';
 		SELECT movies.title, ratings.rating
 		FROM movies
 		LEFT JOIN ratings ON ratings.movie_id = movies.id
-		WHERE movies.title = "%Godfather%" ;
+		WHERE movies.title LIKE "Godfather%" ;
 	
 	-- Order the previous objective by newest to oldest
 	
-	
+		SELECT movies.title, ratings.rating, ratings.timestamp
+		FROM movies
+		LEFT JOIN ratings ON ratings.movie_id = movies.id
+		WHERE movies.title LIKE "godfather%" 
+		ORDER BY ratings.timestamp;
 	
 	-- Find the comedies from 2005 and get the title and imdbid from the links table
 	
-	
+		SELECT movies.title, movies.genres, links.imdb_id
+		FROM movies
+		LEFT JOIN links ON links.movie_id = movies.id
+		WHERE movies.title LIKE "%(2005)%" AND movies.genres LIKE 'COMEDY';
 	
 	-- Find all movies that have no ratings
 	
+		SELECT movies.title, movies.genres, ratings.rating
+		FROM movies
+		LEFT JOIN ratings ON ratings.movie_id = movies.id
+		WHERE ratings.rating is NULL OR ratings.rating = '' ; 
 	
+-- Complete the following aggregation objectives:
+	-- Get the average rating for a movie
+
+		SELECT avg(ratings.rating), movies.id
+		FROM movies
+		LEFT JOIN ratings ON ratings.movie_id = movies.id
+		WHERE movies.title LIKE 'Mortal Kombat (1995)'
+		GROUP BY movies.id ;
+
+	-- Get the total ratings for a movie
+
+		SELECT sum(ratings.rating), movies.id
+		FROM movies
+		LEFT JOIN ratings ON ratings.movie_id = movies.id
+		WHERE movies.title LIKE 'Mortal Kombat (1995)'
+		GROUP BY movies.id ;
+
+
+	-- Get the total movies for a genre
+
+		SELECT count(movies.genres)
+		FROM movies
+		WHERE movies.genres LIKE '%comedy%' ;
+				
+	-- Get the average rating for a user
+
+		SELECT avg(ratings.rating), ratings.user_id
+		FROM ratings
+		WHERE ratings.user_id = 1 ;
+		
+	-- Find the user with the most ratings
+
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a DESC
+		LIMIT 1 ;
+
+	-- Find the user with the highest average rating
+
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		ORDER BY b DESC
+		LIMIT 1;
+		
+	-- Find the user with the highest average rating with more than 50 reviews
+
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		HAVING COUNT(ratings.user_id) &gt; 50
+		ORDER BY b DESC
+		LIMIT 1;
+
+
+	-- Find the movies with an average rating over 4
+	
+		SELECT avg(ratings.rating) b, ratings.movie_id
+		FROM ratings
+		GROUP BY ratings.movie_id
+		HAVING b &gt; 4
+		ORDER BY b DESC ;
+
 	</string>
 			<key>table</key>
-			<string>movies</string>
+			<string>ratings</string>
 			<key>view</key>
 			<string>SP_VIEW_CUSTOMQUERY</string>
 			<key>windowVerticalDividerPosition</key>
@@ -191,150 +283,145 @@ WHERE movies.title = '%Jumanji%';
 	<array/>
 	<key>queryHistory</key>
 	<array>
-		<string>-- With Joins
-	-- Find all the ratings for the movie Godfather, show just the title and the rating
+		<string>-- Find the movies with an average rating over 4
 	
-		SELECT movies.title, ratings.rating
-		FROM movies
-		LEFT JOIN ratings ON ratings.movie_id = movies.id
-		WHERE movies.title = "%Godfather%"</string>
-		<string>-- With Joins
-	-- Find all the ratings for the movie Godfather, show just the title and the rating
+		SELECT avg(ratings.rating) b, ratings.movie_id
+		FROM ratings
+		GROUP BY ratings.movie_id
+		HAVING b &gt; 4
+		ORDER BY b DESC</string>
+		<string>-- Find the movies with an average rating over 4
 	
-		SELECT movies.title, ratings.rating
-		FROM movies
-		LEFT JOIN ratings ON ratings.movie_id = movies.id
-		WHERE movies.title = "%godfather%"</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT avg(ratings.rating) b, ratings.movie_id
+		FROM ratings
+		GROUP BY ratings.movie_id
+		HAVING AVG(b) &gt; 4
+		ORDER BY b DESC</string>
+		<string>-- Find the movies with an average rating over 4
+	
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.movie_id
+		HAVING AVG(b) &gt; 4
+		ORDER BY b DESC</string>
+		<string>-- Find the movies with an average rating over 4
+	
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		HAVING AVG(b) &gt; 4
+		ORDER BY b DESC</string>
+		<string>-- Find the user with the highest average rating with more than 50 reviews
 
-UPDATE movies
-SET `MPAA_rating` = 'PG'
-WHERE title = '%toy story%'</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		HAVING COUNT(ratings.user_id) &gt; 50
+		ORDER BY b DESC
+		LIMIT 1</string>
+		<string>-- Find the user with the highest average rating with more than 50 reviews
 
-UPDATE movies
-SET `MPAA_rating` = 'PG'
-WHERE title = '%Jumanji%'</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		HAVING COUNT(ratings.user_id) &gt; 50
+		ORDER BY b DESC
+		LIMIT 485</string>
+		<string>-- Find the user with the highest average rating with more than 50 reviews
 
-UPDATE movies
-SET `MPAA_rating` = 'PG'
-WHERE movies.title = '%Jumanji%'</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		HAVING COUNT(b) &gt; 50
+		ORDER BY b DESC
+		LIMIT 1</string>
+		<string>-- Find the user with the highest average rating
 
-UPDATE movies
-SET `MPAA rating` = 'PG'
-WHERE movies.title = '%Jumanji%'</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT avg(ratings.rating) b, ratings.user_id
+		FROM ratings
+		GROUP BY ratings.user_id
+		ORDER BY b DESC
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE movies
-SET `MPAA rating` = 'PG'
-WHERE movies.title = '%jumanji%'</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a desc
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE movies
-SET `MPAA rating` = ratings.rating
-LEFT JOIN ratings ON movies.MPAA_ratings = ratings.rating
-WHERE ratings.movie_id IN (movies.id = 1,2,3,4,5)</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a desc</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE movies
-SET `MPAA rating` = ratings.rating
-LEFT JOIN ratings ON movies.MPAA ratings = ratings.rating
-WHERE ratings.movie_id IN (movies.id = 1,2,3,4,5)</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE Movies
-SET `MPAA rating` = ratings.rating
-WHERE ratings.movie_id IN (1,2,3,4,5)</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a 
+		LIMIT 200</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE Movies
-SET `MPAA rating` = ratings.rating
-WHERE movie_id IN (1,2,3,4,5)</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a 
+		LIMIT 10</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE Movies
-SET `MPAA rating` = ratings.rating
-WHERE movie_id = 1,2,3,4,5</string>
-		<string>"2','3','4','5"</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a 
+		LIMIT 3</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE Movies
-SET `MPAA rating` = ratings.rating
-WHERE movie_id = '1',"2','3','4','5"</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating
+		SELECT ratings.user_id, count(ratings.rating) a
+		FROM ratings 
+		GROUP BY ratings.user_id
+		ORDER BY a 
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
-UPDATE Movies
-SET `MPAA rating` = ratings.rating
-WHERE movie_id = '1','2','3','4','5'</string>
-		<string>-- Create a new table called actors (We are going to pretend the actor can only play in one movie). The table should include name, character name, foreign key to movies and date of birth at least plus an id field.
+		SELECT count(ratings.rating) a
+		FROM ratings 
+		WHERE ratings.user_id
+		ORDER BY a 
+		LIMIT 10</string>
+		<string>-- Find the user with the most ratings
 
--- Pick 3 movies and create insert statements for 10 actors each. You should use the multi value insert statements
+		SELECT count(ratings.rating) a
+		FROM ratings 
+		WHERE ratings.user_id
+		ORDER BY a 
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
+		SELECT count(ratings.rating) as 
+		FROM ratings 
+		WHERE ratings.user_id
+		ORDER BY a 
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
-INSERT INTO actors(`name`, `character name`, `movie id`, `DOB`) 
-VALUES 
-	('Billy Bob', 'Jimmy Craig', '1', '04/20/1974'),
-	('McLovin', 'Eugene', '1', '05/15/1985'),
-	('Bobbie Smith', 'Louise Craiger', '1', '12/25/1990'),
-	('Michael Scott', 'Darth Vader', '1', '08/04/1964'),
-	('Sam Smith', 'John Jimmy', '2', '01/10/1964'),
-	('Mark Mandlay', 'Yoda', '2', '03/14/1967'),
-	('Kyle White', 'Kool-Aid Man', '2', '10/20/1974'),
-	('Holly Aster', 'Snow White', '3', '04/22/1966'),
-	('Brandon Black', 'George Oney', '3', '09/14/1965'),
-	('Jane Janet', 'Poison Ivy', '3', '05/21/1994')</string>
-		<string>-- Create a new column in the movie table to hold the MPAA rating. UPDATE 5 different movies to their correct rating</string>
-		<string>-- Create a new table called actors (We are going to pretend the actor can only play in one movie). The table should include name, character name, foreign key to movies and date of birth at least plus an id field.
+		SELECT count(ratings.rating) as a
+		FROM ratings 
+		ORDER BY a 
+		LIMIT 1</string>
+		<string>-- Find the user with the most ratings
 
--- Pick 3 movies and create insert statements for 10 actors each. You should use the multi value insert statements
-
-
-INSERT INTO actors(`name`, `character name`, `movie id`, `DOB`) 
-VALUES 
-	('Billy Bob', 'Jimmy Craig', '1', '04/20/1974'),
-	('McLovin', 'Eugene', '1', '05/15/1985'),
-	('Bobbie Smith', 'Louise Craiger', '1', '12/25/1990'),
-	('Michael Scott', 'Darth Vader', '1', '08/04/1964'),
-	('Sam Smith', 'John Jimmy', '2', '01/10/1964'),
-	('Mark Mandlay', 'Yoda', '2', '03/14/1967'),
-	('Kyle White', 'Kool-Aid Man', '3', '10/20/1974'),
-	('Holly Aster', 'Snow White', '3', '04/22/1966'),
-	('Brandon Black', 'George Oney', '3', '09/14/1965'),
-	('Jane Janet', 'Poison Ivy', '2', '05/21/1994')</string>
-		<string>-- Create a new table called actors (We are going to pretend the actor can only play in one movie). The table should include name, character name, foreign key to movies and date of birth at least plus an id field.
-
--- Pick 3 movies and create insert statements for 10 actors each. You should use the multi value insert statements
-
-
-INSERT INTO actors(`name`, `character name`, `movie id`, `DOB`) 
-VALUES 
-	('Billy Bob', 'Jimmy Craig', '1', '04/20/1974'),
-	('McLovin', 'Eugene', '1', '05/15/1985'),
-	('Bobbie Smith', 'Louise Craiger', '1', '12/25/1990'),
-	('Michael Scott', 'Darth Vader', '1', '08/04/1964'),
-	('Sam Smith', 'John Jimmy', '2', '01/10/1964'),
-	('Mark Mandlay', 'Yoda', '2', '03/14/1967'),
-	('Kyle White', 'Kool-Aid Man', '3', '10/20/1974'),
-	('Holly Aster', 'Snow White', '3', '04/22/1966'),
-	('Brandon Black', 'George Oney', '3', '09/14/1965')</string>
-		<string>-- Create a new table called actors (We are going to pretend the actor can only play in one movie). The table should include name, character name, foreign key to movies and date of birth at least plus an id field.
-
--- Pick 3 movies and create insert statements for 10 actors each. You should use the multi value insert statements
-
-
-INSERT INTO actors(`name`, `character name`, `movie id`, `DOB`) 
-VALUES 
-	('Billy Bob', 'Jimmy Craig', '1', '04/20/1974'),
-	('McLovin', 'Eugene', '1', '05/15/1985'),
-	('Bobbie Smith', 'Louise Craiger', '1', '12/25/1990'),
-	('Michael Scott', 'Darth Vader', '1', '08/04/1964'),
-	('Billy Bob', 'Jimmy Craig', '2', '01/10/1964'),
-	('Billy Bob', 'Jimmy Craig', '2', '03/14/1967'),
-	('Billy Bob', 'Jimmy Craig', '3', '10/20/1974'),
-	('Billy Bob', 'Jimmy Craig', '3', '04/22/1966'),
-	('Billy Bob', 'Jimmy Craig', '3', '09/14/1965')</string>
+		SELECT ratings.user_id, count(ratings.rating) as a
+		FROM ratings 
+		ORDER BY a 
+		LIMIT 1</string>
 	</array>
 	<key>rdbms_type</key>
 	<string>mysql</string>
